@@ -1,18 +1,20 @@
-package onnx
+// Copyright (c) ClearBlade Inc. All rights reserved.
+// Licensed under the MIT License.
+
+package onnxruntime
 
 /*
 #include "onnxruntime_c_api.h"
-#include "onnx.h"
+#include "onnxruntime.h"
 #include <stdlib.h>
 */
 import "C"
 import (
 	"errors"
 	"fmt"
+	"gorgonia.org/tensor"
 	"reflect"
 	"unsafe"
-
-	"gorgonia.org/tensor"
 )
 
 func init() {

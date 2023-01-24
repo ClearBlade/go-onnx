@@ -1,8 +1,8 @@
-package onnx
+package onnxruntime
 
 /*
 #include "onnxruntime_c_api.h"
-#include "onnx.h"
+#include "onnxruntime.h"
 */
 import "C"
 import (

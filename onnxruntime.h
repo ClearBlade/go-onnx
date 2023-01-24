@@ -1,3 +1,6 @@
+// Copyright (c) ClearBlade Inc. All rights reserved.
+// Licensed under the MIT License.
+
 #ifndef ONNX_H
 #define ONNX_H
 
