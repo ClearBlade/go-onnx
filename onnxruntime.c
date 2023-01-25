@@ -346,12 +346,3 @@ void free_string_tensor_data(StringTensorInfo* info) {
 void free_value(OrtValue* value) {
     g_ort->ReleaseValue(value);
 }
-
-int main(){
-  FILE* ptr;
-  char ch;
-
-  // Opening file in reading mode
-  ptr = fopen("./samples/boston_housing_regression/boston_housing_regression.onnx", "r");
- 
-}

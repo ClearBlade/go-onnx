@@ -1,7 +1,7 @@
 package main
 
 import (
-	"github.com/ClearBlade/go-onnx"
+	onnxruntime "github.com/ClearBlade/go-onnx"
 	"gorgonia.org/tensor"
 	"io/ioutil"
 	"log"
