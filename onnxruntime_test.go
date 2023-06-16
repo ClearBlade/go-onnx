@@ -7,7 +7,7 @@ import (
 )
 
 func TestNewOnnxRuntime(t *testing.T) {
-	model, err := ioutil.ReadFile("./samples/models/scaler.onnx")
+	model, err := ioutil.ReadFile("./samples/test-models/scaler.onnx")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -24,7 +24,7 @@ func TestNewOnnxRuntime(t *testing.T) {
 }
 
 func TestRunSimple(t *testing.T) {
-	model, err := ioutil.ReadFile("./samples/models/scaler.onnx")
+	model, err := ioutil.ReadFile("./samples/test-models/scaler.onnx")
 	if err != nil {
 		t.Fatal(err)
 	}
