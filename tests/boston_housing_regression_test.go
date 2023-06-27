@@ -1,29 +1,24 @@
-package main
+package tests
 
 import (
+	"io/ioutil"
+	"testing"
+
 	onnxruntime "github.com/ClearBlade/go-onnx"
 	"gorgonia.org/tensor"
-	"io/ioutil"
-	"log"
 )
 
-func main() {
+func TestLinearRegression(t *testing.T) {
 
 	// Loading an ONNX model
-	model, err := ioutil.ReadFile("./boston_housing_regression.onnx")
+	model, err := ioutil.ReadFile("./models/boston_housing_regression.onnx")
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
 	ort, err := onnxruntime.NewOnnxRuntime(model)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
-
-	// Logging expected input shape and type
-	log.Println("Expected Input Type: ", ort.Inputs[0].DataType)
-	log.Println("Expected Input Shape: ", ort.Inputs[0].Shape)
-
-	log.Println("Output layer name: ", ort.Outputs[0].Name)
 
 	// Actual input data
 	inputData := []float64{
@@ -38,9 +33,7 @@ func main() {
 	// Run model
 	out, err := ort.RunSimple(in)
 	if err != nil {
-		log.Fatal(err)
+		t.Fatal(err)
 	}
-
-	// Log output
-	log.Println("OUTPUT: ", out[ort.Outputs[0].Name])
+	_ = out
 }

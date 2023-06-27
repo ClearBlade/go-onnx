@@ -1,17 +1,19 @@
-package onnxruntime
+package tests
 
 import (
-	"gorgonia.org/tensor"
 	"io/ioutil"
 	"testing"
+
+	ort "github.com/ClearBlade/go-onnx"
+	"gorgonia.org/tensor"
 )
 
 func TestNewOnnxRuntime(t *testing.T) {
-	model, err := ioutil.ReadFile("./samples/test-models/scaler.onnx")
+	model, err := ioutil.ReadFile("./models/scaler.onnx")
 	if err != nil {
 		t.Fatal(err)
 	}
-	ort, err := NewOnnxRuntime(model)
+	ort, err := ort.NewOnnxRuntime(model)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -20,15 +22,14 @@ func TestNewOnnxRuntime(t *testing.T) {
 	t.Logf("Expected Input Shape: %+v", ort.Inputs[0].Shape)
 
 	t.Logf("Output layer name: %+v", ort.Outputs[0].Name)
-
 }
 
 func TestRunSimple(t *testing.T) {
-	model, err := ioutil.ReadFile("./samples/test-models/scaler.onnx")
+	model, err := ioutil.ReadFile("./models/scaler.onnx")
 	if err != nil {
 		t.Fatal(err)
 	}
-	ort, err := NewOnnxRuntime(model)
+	ort, err := ort.NewOnnxRuntime(model)
 	if err != nil {
 		t.Fatal(err)
 	}
