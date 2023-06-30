@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -9,8 +8,8 @@ import (
 	"gorgonia.org/tensor"
 )
 
-func TestString(t *testing.T) {
-	model, err := os.ReadFile("./models/string-convert.onnx")
+func TestString2(t *testing.T) {
+	model, err := os.ReadFile("./models/string-num-encoder.onnx")
 	if err != nil {
 		t.Fatal("failed to read model file: ", err)
 	}
@@ -24,17 +23,19 @@ func TestString(t *testing.T) {
 
 	t.Logf("Output layer name: %+v", rt.Outputs[0].Name)
 	t.Logf("Output layer Shape: %+v", rt.Outputs[0].Shape)
-	backing := []string{"Seven"}
-	ten := tensor.New(tensor.Of(tensor.String), tensor.WithShape(1), tensor.WithBacking(backing))
-	pointer := ten.Pointer()
-	t.Logf("DATA: %+v", ten.Data())
-	str := *(*string)(pointer)
-	fmt.Printf("STRING: %+v", str)
+	backing := []string{"Six"}
+	ten := tensor.NewDense(tensor.String, []int{1, 1}, tensor.WithBacking(backing))
 	out, err := rt.RunSimple(ten)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("OUTPUT: %+v\n", out[rt.Outputs[0].Name])
-	t.Logf("Hi")
+	t.Logf("OUTPUT: %+v\n", out)
+	backing2 := []string{"Nine"}
+	newTen := tensor.NewDense(tensor.String, []int{1, 1}, tensor.WithBacking(backing2))
+	out2, err := rt.RunSimple(newTen)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("OUTPUT: %+v\n", out2)
 
 }

@@ -12,7 +12,17 @@ void init_api() {
 	g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
 	setbuf(stdout, NULL);
 }
-
+//JOHN DEBUGGING
+void CheckStatus(OrtStatus* status)
+{
+    if (status != NULL) {
+      const char* msg = g_ort->GetErrorMessage(status);
+      fprintf(stderr, "%s\n", msg);
+      g_ort->ReleaseStatus(status);
+      exit(1);
+    }
+}
+//JOHN DEBUGGING
 // returns an OnnxRuntime*
 void load_model(void* data, size_t data_len, OrtReturn* ret) {
 	OnnxRuntime* runtime = malloc(sizeof(OnnxRuntime));
@@ -60,7 +70,16 @@ void load_model(void* data, size_t data_len, OrtReturn* ret) {
 
 // returns an OrtValue*
 void make_c_tensor(OnnxRuntime* runtime, void* input, size_t input_len, int64_t* input_shape, size_t input_shape_len, ONNXTensorElementDataType dtype, OrtReturn* ret) {
+  char arr[1][3] = {"Six"};
+  //printf("%s", new_chars[0]);
+  void* p = &arr;
+  input = &p;
+  char **new_chars=(char**)(input);
+  printf("%s\n", new_chars[0]);
 	ret->status = g_ort->CreateTensorWithDataAsOrtValue(runtime->memory_info, input, input_len, input_shape, input_shape_len, dtype, (OrtValue**)&ret->value);
+  char** floatarr;
+  CheckStatus(g_ort->GetTensorMutableData(*(OrtValue**)&ret->value, (void**)&floatarr));
+  printf("ORT Input Tensor: %s \n***END***\n", floatarr[0]);
 	if (ret->status) return;
 }
 
