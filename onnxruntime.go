@@ -16,6 +16,8 @@ import (
 	"unsafe"
 
 	"gorgonia.org/tensor"
+
+	"gorgonia.org/tensor"
 )
 
 func init() {
