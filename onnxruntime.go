@@ -158,6 +158,7 @@ func (o *OnnxRuntime) Run(desiredOutputs []string, inputs map[string]*tensor.Den
 			continue
 		}
 		inputTensors[i], err = o.makeCTensor(inputTensor)
+		fmt.Printf("inp Tens: %+v", inputTensors[i])
 		if err != nil {
 			return nil, fmt.Errorf("failed to make input tensor[%d]: %s", i, err)
 		}
@@ -169,13 +170,14 @@ func (o *OnnxRuntime) Run(desiredOutputs []string, inputs map[string]*tensor.Den
 	defer freeCStringSlice(outputNames, len(desiredOutputs))
 	inputNames := cStringSlice(inputTensorNames)
 	defer freeCStringSlice(inputNames, len(inputTensorNames))
-
+	fmt.Printf("IO Names fine\n")
 	ret := C.OrtReturn{}
 	C.run(o.runtime, &inputTensors[0], C.size_t(len(inputTensors)),
 		inputNames, C.size_t(len(inputTensorNames)), outputNames, C.size_t(len(desiredOutputs)), &ret)
 	if ret.status != nil {
 		return nil, getError(ret.status)
 	}
+	fmt.Printf("ran fine\n")
 	numOutputs := len(desiredOutputs)
 	outputs := (*[1 << 30]*C.OrtValue)(ret.value)[:numOutputs:numOutputs]
 	defer freeValues(outputs)

@@ -35,6 +35,5 @@ func TestString(t *testing.T) {
 		t.Fatal(err)
 	}
 	fmt.Printf("OUTPUT: %+v\n", out[rt.Outputs[0].Name])
-	t.Logf("Hi")
 
 }

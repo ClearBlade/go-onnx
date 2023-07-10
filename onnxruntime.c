@@ -76,11 +76,16 @@ void make_c_tensor(OnnxRuntime* runtime, void* input, size_t input_len, int64_t*
   input = &p;
   char **new_chars=(char**)(input);
   printf("%s\n", new_chars[0]);
+  printf("shape: %d, %d", input_shape[0], input_shape[1]);
 	ret->status = g_ort->CreateTensorWithDataAsOrtValue(runtime->memory_info, input, input_len, input_shape, input_shape_len, dtype, (OrtValue**)&ret->value);
-  char** floatarr;
-  CheckStatus(g_ort->GetTensorMutableData(*(OrtValue**)&ret->value, (void**)&floatarr));
-  printf("ORT Input Tensor: %s \n***END***\n", floatarr[0]);
+  //CheckStatus(ret->status);
+  
 	if (ret->status) return;
+  printf("Tensor Made ! \n");
+
+/*   char** floatarr;
+  CheckStatus(g_ort->GetTensorMutableData(*(OrtValue**)&ret->value, (void**)&floatarr));
+  printf("ORT Input Tensor: %s \n***END***\n", floatarr[0]); */
 }
 
 void get_io_count(OnnxRuntime* runtime, size_t type, OrtReturn* ret) {

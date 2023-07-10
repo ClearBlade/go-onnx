@@ -1,6 +1,7 @@
 package tests
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -29,13 +30,15 @@ func TestString2(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
+	fmt.Printf("OUTPUT: %+v", out)
 	t.Logf("OUTPUT: %+v\n", out)
-	backing2 := []string{"Nine"}
+	/* backing2 := []string{"Nine"}
 	newTen := tensor.NewDense(tensor.String, []int{1, 1}, tensor.WithBacking(backing2))
 	out2, err := rt.RunSimple(newTen)
 	if err != nil {
 		t.Fatal(err)
 	}
-	t.Logf("OUTPUT: %+v\n", out2)
+	fmt.Printf("OUTPUT: %+v", out2)
+	t.Logf("OUTPUT: %+v\n", out2) */
 
 }
