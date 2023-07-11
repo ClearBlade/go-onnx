@@ -229,9 +229,6 @@ func (o *OnnxRuntime) Cleanup() {
 
 func (o *OnnxRuntime) makeCTensor(ten *tensor.Dense) (*C.OrtValue, error) {
 	shape := make([]int64, len(ten.Shape()))
-	fmt.Println(shape)
-	fmt.Println(ten.Shape())
-	fmt.Println(ten.Data())
 	for i, s := range ten.Shape() {
 		shape[i] = int64(s)
 	}
@@ -240,12 +237,6 @@ func (o *OnnxRuntime) makeCTensor(ten *tensor.Dense) (*C.OrtValue, error) {
 		return nil, err
 	}
 	ret := C.OrtReturn{}
-	fmt.Println("DATASIZE: ", ten.DataSize())
-	fmt.Println("input_len: ", C.size_t(ten.DataSize()*int(unsafe.Sizeof(ten.Dtype().Type))))
-	fmt.Println(len(shape))
-	fmt.Println("Type: ", typ)
-	fmt.Println("input_shape_length: ", C.size_t(len(shape)))
-
 	C.make_c_tensor(
 		o.runtime,
 		ten.Pointer(),
