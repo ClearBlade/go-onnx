@@ -16,8 +16,6 @@ import (
 	"unsafe"
 
 	"gorgonia.org/tensor"
-
-	"gorgonia.org/tensor"
 )
 
 func init() {
@@ -136,7 +134,6 @@ func (o *OnnxRuntime) RunSimple(inputs ...*tensor.Dense) (map[string]interface{}
 	want := make([]string, len(o.Outputs))
 	for i, output := range o.Outputs {
 		want[i] = output.Name
-		fmt.Println(output.Name)
 	}
 
 	return o.Run(want, in)
@@ -241,7 +238,6 @@ func (o *OnnxRuntime) makeCTensor(ten *tensor.Dense) (*C.OrtValue, error) {
 		o.runtime,
 		ten.Pointer(),
 		C.size_t(ten.DataSize()*int(unsafe.Sizeof(ten.Dtype().Type))),
-		//24,
 		(*C.int64_t)(&shape[0]),
 		C.size_t(len(shape)),
 		typ,
