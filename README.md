@@ -84,4 +84,4 @@ This package uses the go testing package. The tests are stored in the /tests/ fo
 
 >Note: Tests utilize other dependencies, such as github.com/sugarme/tokenizer and github.com/galeone/tfgo
 ### Models
-Some models are not included in this repository. For the mnist-8 or roberta-sequence-classification-9 models, see the [ONNX Model Zoo](https://github.com/onnx/models). For boston_housing_regression, scaler, and string-convert, see [some link](site)
+Some models are not included in this repository. For the mnist-8 or roberta-sequence-classification-9 models, see the [ONNX Model Zoo](https://github.com/onnx/models). The boston_housing_regression, scaler, and string-convert models are included.
