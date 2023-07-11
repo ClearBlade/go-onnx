@@ -1,7 +1,6 @@
 package tests
 
 import (
-	"fmt"
 	"os"
 	"testing"
 
@@ -10,7 +9,7 @@ import (
 )
 
 func TestString2(t *testing.T) {
-	model, err := os.ReadFile("./models/string-num-encoder.onnx")
+	model, err := os.ReadFile("./string-convert.onnx")
 	if err != nil {
 		t.Fatal("failed to read model file: ", err)
 	}
@@ -24,21 +23,14 @@ func TestString2(t *testing.T) {
 
 	t.Logf("Output layer name: %+v", rt.Outputs[0].Name)
 	t.Logf("Output layer Shape: %+v", rt.Outputs[0].Shape)
-	backing := []string{"Six"}
-	ten := tensor.NewDense(tensor.String, []int{1, 1}, tensor.WithBacking(backing))
+
+	backing := []string{"One", "Two", "Three"}
+	ten := tensor.NewDense(tensor.String, []int{1, len(backing)}, tensor.WithBacking(backing))
 	out, err := rt.RunSimple(ten)
 	if err != nil {
 		t.Fatal(err)
 	}
-	fmt.Printf("OUTPUT: %+v", out)
-	t.Logf("OUTPUT: %+v\n", out)
-	/* backing2 := []string{"Nine"}
-	newTen := tensor.NewDense(tensor.String, []int{1, 1}, tensor.WithBacking(backing2))
-	out2, err := rt.RunSimple(newTen)
-	if err != nil {
-		t.Fatal(err)
-	}
-	fmt.Printf("OUTPUT: %+v", out2)
-	t.Logf("OUTPUT: %+v\n", out2) */
+
+	t.Logf("Input: %+v -> Output: %+v", backing, out[rt.Outputs[0].Name])
 
 }

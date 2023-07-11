@@ -70,22 +70,14 @@ void load_model(void* data, size_t data_len, OrtReturn* ret) {
 
 // returns an OrtValue*
 void make_c_tensor(OnnxRuntime* runtime, void* input, size_t input_len, int64_t* input_shape, size_t input_shape_len, ONNXTensorElementDataType dtype, OrtReturn* ret) {
-  char arr[1][3] = {"Six"};
-  //printf("%s", new_chars[0]);
-  void* p = &arr;
-  input = &p;
-  char **new_chars=(char**)(input);
-  printf("%s\n", new_chars[0]);
-  printf("shape: %d, %d", input_shape[0], input_shape[1]);
-	ret->status = g_ort->CreateTensorWithDataAsOrtValue(runtime->memory_info, input, input_len, input_shape, input_shape_len, dtype, (OrtValue**)&ret->value);
-  //CheckStatus(ret->status);
-  
-	if (ret->status) return;
-  printf("Tensor Made ! \n");
+  ret->status = g_ort->CreateTensorWithDataAsOrtValue(runtime->memory_info, input, input_len, input_shape, input_shape_len, dtype, (OrtValue**)&ret->value);
+  if (ret->status) return;
+}
 
-/*   char** floatarr;
-  CheckStatus(g_ort->GetTensorMutableData(*(OrtValue**)&ret->value, (void**)&floatarr));
-  printf("ORT Input Tensor: %s \n***END***\n", floatarr[0]); */
+void make_c_string_tensor(OnnxRuntime* runtime, const char* input[], size_t input_size, int64_t* input_shape, size_t input_shape_len, ONNXTensorElementDataType dtype, OrtReturn* ret) {
+  ret->status = g_ort->CreateTensorAsOrtValue(runtime->allocator, input_shape, input_shape_len, dtype, (OrtValue**)&ret->value);
+  if (ret->status) return;
+  g_ort->FillStringTensor(ret->value, input, input_size);
 }
 
 void get_io_count(OnnxRuntime* runtime, size_t type, OrtReturn* ret) {
