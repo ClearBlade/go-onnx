@@ -18,16 +18,16 @@ type test struct {
 }
 
 func generate_mnist_tests() []test {
-	tests := []test{{"./models/mnist_test_data_set/img_1.jpg", 2},
-		{"./models/mnist_test_data_set/img_2.jpg", 0},
-		{"./models/mnist_test_data_set/img_3.jpg", 9},
-		{"./models/mnist_test_data_set/img_4.jpg", 0},
-		{"./models/mnist_test_data_set/img_5.jpg", 3},
-		{"./models/mnist_test_data_set/img_6.jpg", 7},
-		{"./models/mnist_test_data_set/img_7.jpg", 0},
-		{"./models/mnist_test_data_set/img_8.jpg", 3},
-		{"./models/mnist_test_data_set/img_9.jpg", 0},
-		{"./models/mnist_test_data_set/img_10.jpg", 3}}
+	tests := []test{{"./test_data/img_1.jpg", 2},
+		{"./test_data/img_2.jpg", 0},
+		{"./test_data/img_3.jpg", 9},
+		{"./test_data/img_4.jpg", 0},
+		{"./test_data/img_5.jpg", 3},
+		{"./test_data/img_6.jpg", 7},
+		{"./test_data/img_7.jpg", 0},
+		{"./test_data/img_8.jpg", 3},
+		{"./test_data/img_9.jpg", 0},
+		{"./test_data/img_10.jpg", 3}}
 	return tests
 }
 
