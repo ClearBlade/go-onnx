@@ -12,7 +12,6 @@ void init_api() {
 	g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
 	setbuf(stdout, NULL);
 }
-
 // returns an OnnxRuntime*
 void load_model(void* data, size_t data_len, OrtReturn* ret) {
 	OnnxRuntime* runtime = malloc(sizeof(OnnxRuntime));

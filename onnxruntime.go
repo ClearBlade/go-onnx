@@ -22,12 +22,14 @@ func init() {
 	C.init_api()
 }
 
+// OnnxRuntime represents an inference session with the ONNXRuntime C API
 type OnnxRuntime struct {
 	runtime *C.OnnxRuntime
 	Inputs  []IOInfo
 	Outputs []IOInfo
 }
 
+// IOInfo holds information about a model's tensor inputs/outputs
 type IOInfo struct {
 	Name string
 	Type ValueType
@@ -37,6 +39,8 @@ type IOInfo struct {
 	Shape    []int
 }
 
+// Creates an OnnxRuntime from a []byte holding a .onnx model
+// This function will allocate memory in C and should be called with a defer Cleanup()
 func NewOnnxRuntime(model []byte) (*OnnxRuntime, error) {
 	o := &OnnxRuntime{}
 	ret := C.OrtReturn{}
@@ -116,12 +120,14 @@ func (o *OnnxRuntime) ioInfo(t ioType, index int) (IOInfo, error) {
 	return info, nil
 }
 
+// Inferences on inputs. Assumes inputs are in the order the model needs. Returns all outputs
 func (o *OnnxRuntime) RunSimple(inputs ...*tensor.Dense) (map[string]interface{}, error) {
 	if len(inputs) != len(o.Inputs) {
 		return nil, fmt.Errorf("mismatched input lengths: expected %d got %d", len(o.Inputs), len(inputs))
 	}
 	in := make(map[string]*tensor.Dense, len(o.Inputs))
 	for i, input := range o.Inputs {
+
 		in[input.Name] = inputs[i]
 	}
 
@@ -133,6 +139,7 @@ func (o *OnnxRuntime) RunSimple(inputs ...*tensor.Dense) (map[string]interface{}
 	return o.Run(want, in)
 }
 
+// Inferences on inputs, returns desired outputs
 func (o *OnnxRuntime) Run(desiredOutputs []string, inputs map[string]*tensor.Dense) (out map[string]interface{}, err error) {
 	defer func() {
 		if r := recover(); r != nil {
@@ -211,6 +218,7 @@ func freeCStringSlice(cArray **C.char, len int) {
 	C.free(unsafe.Pointer(cArray))
 }
 
+// Frees the memory allocated by the Runtime
 func (o *OnnxRuntime) Cleanup() {
 	C.cleanup_runtime(o.runtime)
 	o.runtime = nil
