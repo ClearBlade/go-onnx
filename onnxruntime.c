@@ -12,17 +12,7 @@ void init_api() {
 	g_ort = OrtGetApiBase()->GetApi(ORT_API_VERSION);
 	setbuf(stdout, NULL);
 }
-//JOHN DEBUGGING
-void CheckStatus(OrtStatus* status)
-{
-    if (status != NULL) {
-      const char* msg = g_ort->GetErrorMessage(status);
-      fprintf(stderr, "%s\n", msg);
-      g_ort->ReleaseStatus(status);
-      exit(1);
-    }
-}
-//JOHN DEBUGGING
+
 // returns an OnnxRuntime*
 void load_model(void* data, size_t data_len, OrtReturn* ret) {
 	OnnxRuntime* runtime = malloc(sizeof(OnnxRuntime));
