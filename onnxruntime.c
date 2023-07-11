@@ -1,5 +1,8 @@
+// Copyright (c) ClearBlade Inc. All rights reserved.
+// Licensed under the MIT License.
+
 #include "onnxruntime_c_api.h"
-#include "onnx.h"
+#include "onnxruntime.h"
 #include <stdio.h>
 
 // C API docs: https://onnxruntime.ai/docs/api/c/struct_ort_api.html
@@ -14,21 +17,41 @@ void init_api() {
 void load_model(void* data, size_t data_len, OrtReturn* ret) {
 	OnnxRuntime* runtime = malloc(sizeof(OnnxRuntime));
 
-  	ret->status = g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "test", &runtime->env);
-	if (ret->status) return;
+  ret->status = g_ort->CreateEnv(ORT_LOGGING_LEVEL_WARNING, "test", &runtime->env);
+	
+  if (ret->status) {
+    free(runtime);
+    return;
+  }
 
 	OrtSessionOptions* session_options;
 	ret->status = g_ort->CreateSessionOptions(&session_options);
-	if (ret->status) return;
+	if (ret->status) {
+    free(session_options);
+    free(runtime);
+    return;
+  }
 
 	ret->status = g_ort->CreateSessionFromArray(runtime->env, data, data_len, session_options, &runtime->session);
-	if (ret->status) return;
+	if (ret->status) {
+    free(session_options);
+    free(runtime);
+    return;
+  }
 
-    ret->status = g_ort->CreateCpuMemoryInfo(OrtArenaAllocator, OrtMemTypeDefault, &runtime->memory_info);
-    if (ret->status) return;
+  ret->status = g_ort->CreateCpuMemoryInfo(OrtArenaAllocator, OrtMemTypeDefault, &runtime->memory_info);
+  if (ret->status) {
+    free(session_options);
+    free(runtime);
+    return;
+  }
 
-    ret->status = g_ort->CreateAllocator(runtime->session, runtime->memory_info, &runtime->allocator);
-    if (ret->status) return;
+  ret->status = g_ort->CreateAllocator(runtime->session, runtime->memory_info, &runtime->allocator);
+  if (ret->status) {
+    free(session_options);
+    free(runtime);
+    return;
+  }
 
 	ret->value = runtime;
 
@@ -51,7 +74,10 @@ void get_io_info(OnnxRuntime* runtime, size_t type, size_t index, OrtReturn* ret
     OrtTypeInfo* type_info;
     if (type) ret->status = g_ort->SessionGetInputTypeInfo(runtime->session, index, &type_info);
     else ret->status = g_ort->SessionGetOutputTypeInfo(runtime->session, index, &type_info);
-    if (ret->status) return;
+    if (ret->status) {
+      free(type_info);
+      return;
+    }
 
     IOInfo* info = malloc(sizeof(IOInfo));
     ret->value = info;
@@ -59,6 +85,7 @@ void get_io_info(OnnxRuntime* runtime, size_t type, size_t index, OrtReturn* ret
     ret->status = g_ort->GetOnnxTypeFromTypeInfo(type_info, &info->value_type);
     if (ret->status) {
         free(info);
+        free(type_info);
         return;
     }
 
@@ -66,6 +93,7 @@ void get_io_info(OnnxRuntime* runtime, size_t type, size_t index, OrtReturn* ret
     else ret->status = g_ort->SessionGetOutputName(runtime->session, index, runtime->allocator, &info->name);
     if (ret->status) {
         free(info);
+        free(type_info);
         return;
     }
 
@@ -73,6 +101,7 @@ void get_io_info(OnnxRuntime* runtime, size_t type, size_t index, OrtReturn* ret
         const OrtTensorTypeAndShapeInfo* shape_info;
         ret->status = g_ort->CastTypeInfoToTensorInfo(type_info, &shape_info);
         if (ret->status) {
+            free(type_info);
             free(info);
             return;
         }
@@ -117,25 +146,25 @@ void free_status(OrtStatus* status) {
 
 // returns an OrtValue**
 void run(OnnxRuntime* runtime, OrtValue** input_tensors, size_t input_len, char** input_names, size_t input_names_len, char** output_names, size_t output_names_len, OrtReturn *ret) {
-    OrtValue** outputs = malloc(output_names_len*sizeof(OrtValue*));
+  OrtValue** outputs = malloc(output_names_len*sizeof(OrtValue*));
 	for (int i=0; i<output_names_len; i++) outputs[i] = NULL;
 
-  	ret->status = g_ort->Run(
-  	    runtime->session,
-  	    NULL,
-  	    (const char* const*)input_names,
-  	    (const OrtValue* const*)input_tensors,
-  	    input_names_len,
-  	    (const char* const*)output_names,
-  	    output_names_len,
-  	    outputs);
+  ret->status = g_ort->Run(
+      runtime->session,
+      NULL,
+      (const char* const*)input_names,
+      (const OrtValue* const*)input_tensors,
+      input_names_len,
+      (const char* const*)output_names,
+      output_names_len,
+      outputs);
 
-  	if (ret->status) {
-  	    free(outputs);
-  	    return;
-  	}
+  if (ret->status) {
+      free(outputs);
+      return;
+  }
 
-  	ret->value = outputs;
+  ret->value = outputs;
 }
 
 void cleanup_runtime(OnnxRuntime* runtime) {
@@ -151,11 +180,19 @@ enum ONNXType value_type(OrtValue* value) {
     OrtStatus* status;
     OrtTypeInfo* type_info;
     status = g_ort->GetTypeInfo(value, &type_info);
-    if (status) return ONNX_TYPE_UNKNOWN;
+    if (status) {
+      free(status);
+      free(type_info);
+      return ONNX_TYPE_UNKNOWN;
+    }
 
     enum ONNXType type;
     status = g_ort->GetOnnxTypeFromTypeInfo(type_info, &type);
-    if (status) return ONNX_TYPE_UNKNOWN;
+    if (status) {
+      free(status);
+      free(type_info);
+      return ONNX_TYPE_UNKNOWN;
+    }
 
     g_ort->ReleaseTypeInfo(type_info);
     return type;
@@ -163,25 +200,41 @@ enum ONNXType value_type(OrtValue* value) {
 
 // returns a TensorInfo*
 void get_tensor_info(OrtValue* value, OrtReturn* ret) {
-    TensorInfo* out_info = malloc(sizeof(TensorInfo));
 
     OrtTensorTypeAndShapeInfo* shape_info;
     ret->status = g_ort->GetTensorTypeAndShape(value, &shape_info);
-    if (ret->status) return;
+    if (ret->status) {
+      free(shape_info);
+      return;
+    }
 
     size_t dim_count;
     ret->status = g_ort->GetDimensionsCount(shape_info, &dim_count);
-    if (ret->status) return;
+    if (ret->status) {
+      free(shape_info);
+      return;
+    }
+    
+    TensorInfo* out_info = malloc(sizeof(TensorInfo));
     out_info->shape_len = dim_count;
 
     ONNXTensorElementDataType output_type;
     ret->status = g_ort->GetTensorElementType(shape_info, &output_type);
-    if (ret->status) return;
+    if (ret->status) {
+      free(shape_info);
+      free(out_info);
+      return;
+    }
     out_info->tensor_type = output_type;
 
     int64_t* dims = malloc(dim_count*sizeof(int64_t));
     ret->status = g_ort->GetDimensions(shape_info, dims, dim_count);
-    if (ret->status) return;
+    if (ret->status) {
+      free(shape_info);
+      free(out_info);
+      free(dims);
+      return;
+    }
     out_info->shape_ptr = dims;
 
     void* data;
@@ -208,18 +261,28 @@ void get_sequence_info(OrtValue* value, OrtReturn* ret) {
 
     OrtTypeInfo* type_info;
     ret->status = g_ort->GetTypeInfo(value, &type_info);
-    if (ret->status) return;
+    if (ret->status) {
+      free(type_info);
+      return;
+    }
 
     const OrtSequenceTypeInfo* sequence_type_info;
     ret->status = g_ort->CastTypeInfoToSequenceTypeInfo(type_info, &sequence_type_info);
-    if (ret->status) return;
+    if (ret->status) {
+      free(type_info);
+      return;
+    }
 
     OrtTypeInfo* element_type_info;
     ret->status = g_ort->GetSequenceElementType(sequence_type_info, &element_type_info);
 
     enum ONNXType type;
     ret->status = g_ort->GetOnnxTypeFromTypeInfo(element_type_info, &type);
-    if (ret->status) return;
+    if (ret->status) {
+      free(type_info);
+      free(element_type_info);
+      return;
+    }
 
     g_ort->ReleaseTypeInfo(type_info);
     g_ort->ReleaseTypeInfo(element_type_info);
@@ -250,7 +313,10 @@ void get_child_value(OnnxRuntime* runtime, OrtValue* parent, size_t index, OrtRe
 size_t get_string_tensor_data_len(OrtValue* string_tensor) {
     size_t len;
     OrtStatus* status = g_ort->GetStringTensorDataLength(string_tensor, &len);
-    if (status) return -1;
+    if (status) {
+      free(status);
+      return -1;
+    }
     return len;
 }
 
@@ -259,7 +325,11 @@ void get_string_tensor_data(OrtValue* string_tensor, size_t num_elements, size_t
 
     void* data = malloc(data_len);
     ret->status=g_ort->GetStringTensorContent(string_tensor, data, data_len, offsets, num_elements);
-    if (ret->status) return;
+    if (ret->status) {
+      free(offsets);
+      free(data);
+      return;
+    }
 
     StringTensorInfo* info = malloc(sizeof(StringTensorInfo));
     info->offsets = offsets;
