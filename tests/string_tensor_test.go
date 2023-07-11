@@ -8,18 +8,20 @@ import (
 	"gorgonia.org/tensor"
 )
 
-// uses test struct from mnist_cnn_test
-func generate_string_tests() []test {
-	tests := []test{{"Zero", 0},
-		{"One", 1},
-		{"Two", 2},
-		{"Three", 3},
-		{"Four", 4},
-		{"Five", 5},
-		{"Six", 6},
-		{"Seven", 7},
-		{"Eight", 8},
-		{"Nine", 9}}
+type testString struct {
+	input  []string
+	output []int
+}
+
+func generate_string_tests() []testString {
+	tests := []testString{{[]string{"Zero", "One", "Two"}, []int{0, 1, 2}},
+		{[]string{"Three"}, []int{3}},
+		{[]string{"Four"}, []int{4}},
+		{[]string{"Five"}, []int{5}},
+		{[]string{"Six"}, []int{6}},
+		{[]string{"Seven"}, []int{7}},
+		{[]string{"Eight"}, []int{8}},
+		{[]string{"Nine"}, []int{9}}}
 	return tests
 }
 
@@ -44,16 +46,18 @@ func TestString(t *testing.T) {
 
 	for i := 0; i < len(tests); i++ {
 
-		backing := []string{tests[i].input}
+		backing := tests[i].input
 		ten := tensor.NewDense(tensor.String, []int{1, len(backing)}, tensor.WithBacking(backing))
 		out, err := rt.RunSimple(ten)
 		if err != nil {
 			t.Fatal(err)
 		}
-		predicted := int(out[rt.Outputs[0].Name].([]interface{})[0].([]int64)[0])
-		t.Logf("Input: %+v -> Output: %+v", backing, out[rt.Outputs[0].Name])
-		if predicted != tests[i].output {
-			t.Fatalf("Incorrect Prediction: Recieved %+v but expected %+v", predicted, tests[i].output)
+		for j := 0; j < len(tests[i].output); j++ {
+			predicted := int(out[rt.Outputs[0].Name].([]interface{})[0].([]int64)[j])
+			t.Logf("Input: %+v -> Output: %+v", backing[j], out[rt.Outputs[0].Name])
+			if predicted != tests[i].output[j] {
+				t.Fatalf("Incorrect Prediction: Recieved %+v but expected %+v", predicted, tests[i].output[j])
+			}
 		}
 	}
 }
