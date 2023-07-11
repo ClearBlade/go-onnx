@@ -132,6 +132,7 @@ void get_io_info(OnnxRuntime* runtime, size_t type, size_t index, OrtReturn* ret
 void free_io_info(OnnxRuntime* runtime, IOInfo* info) {
     if(!info) return;
     if(info->name) runtime->allocator->Free(runtime->allocator, info->name);
+    free(info->shape);
     free(info);
 }
 
