@@ -32,6 +32,7 @@ func TestLanguageModel(t *testing.T) {
 	}
 
 	ort, err := onnxruntime.NewOnnxRuntime(model)
+	defer ort.Cleanup()
 	if err != nil {
 		t.Fatal(err)
 	}

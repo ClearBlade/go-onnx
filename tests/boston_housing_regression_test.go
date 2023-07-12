@@ -32,6 +32,7 @@ func TestLinearRegression(t *testing.T) {
 
 	// Run model
 	out, err := ort.RunSimple(in)
+	defer ort.Cleanup()
 	if err != nil {
 		t.Fatal(err)
 	}

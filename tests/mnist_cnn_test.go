@@ -46,6 +46,7 @@ func TestImageProcessingModel(t *testing.T) {
 	}
 
 	rt, err := ort.NewOnnxRuntime(model)
+	defer rt.Cleanup()
 	if err != nil {
 		t.Fatal("failed to create runtime: ", err)
 	}
