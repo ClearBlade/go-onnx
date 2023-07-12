@@ -50,6 +50,7 @@ const char* error_message(OrtStatus* ret);
 void free_status(OrtStatus* status);
 void load_model(void* data, size_t data_len, OrtReturn* ret);
 void make_c_tensor(OnnxRuntime* runtime, void* input, size_t input_len, int64_t* input_shape, size_t input_shape_len, ONNXTensorElementDataType dtype, OrtReturn* ret);
+void make_c_string_tensor(OnnxRuntime* runtime, const char* input[], size_t input_size, int64_t* input_shape, size_t input_shape_len, ONNXTensorElementDataType dtype, OrtReturn* ret);
 void run(OnnxRuntime* runtime, OrtValue** input_tensors, size_t input_len, char** input_names, size_t input_names_len, char** output_names, size_t output_names_len, OrtReturn *ret);
 void cleanup_runtime(OnnxRuntime* runtime);
 

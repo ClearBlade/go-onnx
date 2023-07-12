@@ -17,7 +17,7 @@ type test struct {
 	output int
 }
 
-func generate_tests() []test {
+func generate_mnist_tests() []test {
 	tests := []test{{"./test_data/img_1.jpg", 2},
 		{"./test_data/img_2.jpg", 0},
 		{"./test_data/img_3.jpg", 9},
@@ -50,7 +50,7 @@ func TestImageProcessingModel(t *testing.T) {
 		t.Fatal("failed to create runtime: ", err)
 	}
 
-	tests := generate_tests()
+	tests := generate_mnist_tests()
 
 	for i := 0; i < len(tests); i++ {
 		processedImg := readImage(tests[i].input)

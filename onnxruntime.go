@@ -176,7 +176,6 @@ func (o *OnnxRuntime) Run(desiredOutputs []string, inputs map[string]*tensor.Den
 	defer freeCStringSlice(outputNames, len(desiredOutputs))
 	inputNames := cStringSlice(inputTensorNames)
 	defer freeCStringSlice(inputNames, len(inputTensorNames))
-
 	ret := C.OrtReturn{}
 	C.run(o.runtime, &inputTensors[0], C.size_t(len(inputTensors)),
 		inputNames, C.size_t(len(inputTensorNames)), outputNames, C.size_t(len(desiredOutputs)), &ret)
@@ -234,14 +233,27 @@ func (o *OnnxRuntime) makeCTensor(ten *tensor.Dense) (*C.OrtValue, error) {
 		return nil, err
 	}
 	ret := C.OrtReturn{}
-	C.make_c_tensor(
-		o.runtime,
-		ten.Pointer(),
-		C.size_t(ten.DataSize()*int(unsafe.Sizeof(ten.Dtype().Type))),
-		(*C.int64_t)(&shape[0]),
-		C.size_t(len(shape)),
-		typ,
-		&ret)
+
+	if typ == C.ONNX_TENSOR_ELEMENT_DATA_TYPE_STRING {
+		C.make_c_string_tensor(
+			o.runtime,
+			cStringSlice(ten.Strings()),
+			C.size_t(ten.Size()),
+			(*C.int64_t)(&shape[0]),
+			C.size_t(len(shape)),
+			typ,
+			&ret)
+	} else {
+		C.make_c_tensor(
+			o.runtime,
+			ten.Pointer(),
+			C.size_t(ten.DataSize()*int(unsafe.Sizeof(ten.Dtype().Type))),
+			(*C.int64_t)(&shape[0]),
+			C.size_t(len(shape)),
+			typ,
+			&ret)
+	}
+
 	if ret.status != nil {
 		return nil, getError(ret.status)
 	}
