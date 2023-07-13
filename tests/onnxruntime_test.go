@@ -14,6 +14,7 @@ func TestNewOnnxRuntime(t *testing.T) {
 		t.Fatal(err)
 	}
 	ort, err := ort.NewOnnxRuntime(model)
+	defer ort.Cleanup()
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -30,6 +31,7 @@ func TestRunSimple(t *testing.T) {
 		t.Fatal(err)
 	}
 	ort, err := ort.NewOnnxRuntime(model)
+	defer ort.Cleanup()
 	if err != nil {
 		t.Fatal(err)
 	}
