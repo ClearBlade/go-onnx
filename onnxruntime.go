@@ -244,9 +244,10 @@ func (o *OnnxRuntime) makeCTensor(ten *tensor.Dense) (*C.OrtValue, error) {
 			typ,
 			&ret)
 	} else {
+		uintTenPtr := ten.Uintptr()
 		C.make_c_tensor(
 			o.runtime,
-			ten.Pointer(),
+			*(*unsafe.Pointer)(unsafe.Pointer(&uintTenPtr)),
 			C.size_t(ten.DataSize()*int(unsafe.Sizeof(ten.Dtype().Type))),
 			(*C.int64_t)(&shape[0]),
 			C.size_t(len(shape)),
